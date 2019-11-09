@@ -326,7 +326,7 @@ scheduler(void)
   struct cpu *c = mycpu();
   c->proc = 0;
   
-  int curr;
+  int curr = 31;
   
   for(;;){
     // Enable interrupts on this processor.
@@ -334,14 +334,14 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    curr = 31;
     
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
 		
-	  if(p->priority < curr)
+	  if((p->priority) < curr) {
 	    curr = p->priority;
+	  }
 
 	}
 	
@@ -364,9 +364,10 @@ scheduler(void)
 		// Process is done running for now.
 		// It should have changed its p->state before coming back.
 		c->proc = 0;
+		curr = 31;
 	  }
-      }
-    }
+     }
+    
     release(&ptable.lock);
 
   }
@@ -550,8 +551,10 @@ procdump(void)
   }
 }
 
-void setprority(int p) {
+void setpriority(int p) {
 	struct proc *curproc = myproc();
-	curproc->prority = p;
+	
+	if (p >=0 && p <= 31)
+	  curproc->priority = p;
 		
 }
